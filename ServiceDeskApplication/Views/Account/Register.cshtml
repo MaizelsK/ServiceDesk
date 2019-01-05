@@ -1,6 +1,11 @@
 ﻿@model ServiceDeskApplication.Models.RegisterViewModel
 @{
     ViewBag.Title = "Регистрация";
+    IEnumerable<SelectListItem> items = new List<SelectListItem>(2)
+{
+new SelectListItem(){Text="Технический отдел", Value = "tech"},
+new SelectListItem(){Text="Сотрудник", Value = "employee"},
+};
 }
 
 <h2>@ViewBag.Title.</h2>
@@ -18,6 +23,12 @@
         </div>
     </div>
     <div class="form-group">
+        @Html.LabelFor(m => m.FullName, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
         @Html.LabelFor(m => m.Password, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
             @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
@@ -27,6 +38,13 @@
         @Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-md-2 control-label" })
         <div class="col-md-10">
             @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Role, new { @class = "col-md-2 control-label" })
+        <div class="col-md-10">
+            @Html.DropDownList("Роль", items, new { @class = "form-control" })
+            @Html.DropDownListFor(m=>m.Role, items, new { @class = "form-control" })
         </div>
     </div>
     <div class="form-group">
