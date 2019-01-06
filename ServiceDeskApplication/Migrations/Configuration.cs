@@ -29,6 +29,8 @@ namespace ServiceDeskApplication.Migrations
                 UserName = "domo.ddr@gmail.com",
                 Email = "domo.ddr@gmail.com",
                 PasswordHash = new PasswordHasher().HashPassword("admin123"),
+                FullName = "Админ Админыч",
+                SecurityStamp = Guid.NewGuid().ToString()
             };
 
             context.Roles.AddOrUpdate(roles[0]);

@@ -58,17 +58,17 @@ namespace ServiceDeskApplication.Models
                 UserName = "domo.ddr@gmail.com",
                 Email = "domo.ddr@gmail.com",
                 PasswordHash = new PasswordHasher().HashPassword("admin123"),
+                FullName = "Админ Админыч",
+                SecurityStamp = Guid.NewGuid().ToString()
             };
 
             context.Roles.Add(roles[0]);
             context.Roles.Add(roles[1]);
             context.Users.Add(techUser);
+            context.SaveChanges();
 
             ApplicationUserManager manager = new ApplicationUserManager(new UserStore<ApplicationUser>(context));
-            manager.Create(techUser);
             manager.AddToRole(techUser.Id, "tech");
-
-            context.SaveChanges();
 
             base.Seed(context);
         }

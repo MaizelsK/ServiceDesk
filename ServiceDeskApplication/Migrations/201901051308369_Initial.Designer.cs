@@ -7,13 +7,13 @@ namespace ServiceDeskApplication.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.2.0-61023")]
-    public sealed partial class UpdateUserAndTask : IMigrationMetadata
+    public sealed partial class Initial : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(UpdateUserAndTask));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(Initial));
         
         string IMigrationMetadata.Id
         {
-            get { return "201901050812246_UpdateUserAndTask"; }
+            get { return "201901051308369_Initial"; }
         }
         
         string IMigrationMetadata.Source

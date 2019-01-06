@@ -1,15 +1,21 @@
-﻿@model ServiceDeskApplication.Models.TroubleTask
+﻿@model ServiceDeskApplication.Models.TroubleTaskIndexViewModel
 
 @{
     ViewBag.Title = "Details";
 }
 
-<h2>Details</h2>
-
+<h2>Детали</h2>
+<hr />
 <div>
-    <h4>TroubleTask</h4>
-    <hr />
     <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model=>model.CreatorFullName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CreatorFullName)
+        </dd>
+
         <dt>
             @Html.DisplayNameFor(model => model.GeneratedDate)
         </dt>
@@ -42,9 +48,21 @@
             @Html.DisplayFor(model => model.Status)
         </dd>
 
+        <dt>
+            @Html.DisplayNameFor(model => model.AssignedFullName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.AssignedFullName)
+        </dd>
+
     </dl>
 </div>
 <p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
+    @if (User.IsInRole("tech"))
+    {
+        @Html.ActionLink("Modify", "Edit", new { id = Model.Id });
+        <text> | </text>
+    }
+    @Html.ActionLink("Back to tasks", "Index")
 </p>

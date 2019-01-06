@@ -1,0 +1,67 @@
+﻿@using ServiceDeskApplication.Models;
+@model ServiceDeskApplication.Models.TroubleTaskAssignViewModel
+@{
+    ViewBag.Title = "Assigning";
+    List<ApplicationUser> techUsers = ViewBag.TechUsers;
+}
+
+<h2>@ViewBag.Title</h2>
+
+<div>
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.CreatorFullName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CreatorFullName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.GeneratedDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.GeneratedDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Text)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Text)
+        </dd>
+    </dl>
+</div>
+
+<table class="table">
+    <tr>
+        <th>
+            Tech employees
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in techUsers)
+    {
+        <tr>
+            <td>
+                @item.FullName
+            </td>
+            <td>
+                @Html.ActionLink("Assign", "AssignConfirm", new { id = ViewBag.TaskId, assignedUserId = item.Id })
+            </td>
+        </tr>
+    }
+
+</table>
+
+<div>
+    @Html.ActionLink("Back to tasks", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
+

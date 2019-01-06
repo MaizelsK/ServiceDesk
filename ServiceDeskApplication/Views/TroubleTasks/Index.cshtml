@@ -1,33 +1,33 @@
-﻿@model IEnumerable<ServiceDeskApplication.Models.TroubleTask>
+﻿@model IEnumerable<ServiceDeskApplication.Models.TroubleTaskIndexViewModel>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Tasks";
 }
 
-<h2>Index</h2>
+<h2>@ViewBag.Title</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Create task", "Create")
 </p>
 <table class="table">
     <tr>
         <th>
-            Сотрудник
+            @Html.DisplayNameFor(model=>model.CreatorFullName)
         </th>
         <th>
-            Создана
+            @Html.DisplayNameFor(model => model.GeneratedDate)
         </th>
         <th>
-            Текст
+            @Html.DisplayNameFor(model => model.Text)
         </th>
         <th>
-            Комментарий
+            @Html.DisplayNameFor(model => model.Comment)
         </th>
         <th>
-            Статус
+            @Html.DisplayNameFor(model => model.Status)
         </th>
         <th>
-            Назначен на выполнение
+            @Html.DisplayNameFor(model => model.AssignedFullName)
         </th>
         <th></th>
     </tr>
@@ -36,7 +36,7 @@
     {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.User.FullName)
+                @Html.DisplayFor(modelItem => item.CreatorFullName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.GeneratedDate)
@@ -51,20 +51,21 @@
                 @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
-                @if (item.Assigned == null)
+                @if (item.AssignedFullName == null && User.IsInRole("tech"))
                 {
-                    @Html.ActionLink("Назначить", "Assign", new { id = item.Id })
+                    @Html.ActionLink("Assign", "Assign", new { id = item.Id })
                 }
                 else
                 {
-                    @Html.DisplayFor(modelItem => item.Assigned.FullName)
+                    @Html.DisplayFor(modelItem => item.AssignedFullName)
                 }
             </td>
             <td>
-                @Html.ActionLink("Details", "Details", new { id = item.Id }) |
+                @Html.ActionLink("Details", "Details", new { id = item.Id })
                 @if (User.IsInRole("tech"))
                 {
-                    @Html.ActionLink("Edit", "Edit", new { id = item.Id })
+                    <text> | </text>
+                    @Html.ActionLink("Modify", "Edit", new { id = item.Id })
                 }
             </td>
         </tr>

@@ -6,7 +6,7 @@ namespace ServiceDeskApplication.Models
     public class ExternalLoginConfirmationViewModel
     {
         [Required]
-        [Display(Name = "Адрес электронной почты")]
+        [Display(Name = "E-mail address")]
         public string Email { get; set; }
     }
 
@@ -29,11 +29,11 @@ namespace ServiceDeskApplication.Models
         public string Provider { get; set; }
 
         [Required]
-        [Display(Name = "Код")]
+        [Display(Name = "Code")]
         public string Code { get; set; }
         public string ReturnUrl { get; set; }
 
-        [Display(Name = "Запомнить браузер?")]
+        [Display(Name = "Remember browser?")]
         public bool RememberBrowser { get; set; }
 
         public bool RememberMe { get; set; }
@@ -42,23 +42,23 @@ namespace ServiceDeskApplication.Models
     public class ForgotViewModel
     {
         [Required]
-        [Display(Name = "Адрес электронной почты")]
+        [Display(Name = "E-mail address")]
         public string Email { get; set; }
     }
 
     public class LoginViewModel
     {
         [Required]
-        [Display(Name = "Адрес электронной почты")]
+        [Display(Name = "E-mail address")]
         [EmailAddress]
         public string Email { get; set; }
 
         [Required]
         [DataType(DataType.Password)]
-        [Display(Name = "Пароль")]
+        [Display(Name = "Password")]
         public string Password { get; set; }
 
-        [Display(Name = "Запомнить меня")]
+        [Display(Name = "Remember me")]
         public bool RememberMe { get; set; }
     }
 
@@ -66,25 +66,25 @@ namespace ServiceDeskApplication.Models
     {
         [Required]
         [EmailAddress]
-        [Display(Name = "Адрес электронной почты")]
+        [Display(Name = "E-mail address")]
         public string Email { get; set; }
 
         [Required]
-        [Display(Name = "Полное имя")]
+        [Display(Name = "Full name")]
         public string FullName { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "Значение {0} должно содержать не менее {2} символов.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Пароль")]
+        [Display(Name = "Password")]
         public string Password { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Подтверждение пароля")]
+        [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "Пароль и его подтверждение не совпадают.")]
         public string ConfirmPassword { get; set; }
 
-        [Display(Name = "Роль")]
+        [Display(Name = "Role")]
         [Required]
         public string Role { get; set; }
     }
@@ -93,17 +93,17 @@ namespace ServiceDeskApplication.Models
     {
         [Required]
         [EmailAddress]
-        [Display(Name = "Адрес электронной почты")]
+        [Display(Name = "E-mail address")]
         public string Email { get; set; }
 
         [Required]
         [StringLength(100, ErrorMessage = "Значение {0} должно содержать не менее {2} символов.", MinimumLength = 6)]
         [DataType(DataType.Password)]
-        [Display(Name = "Пароль")]
+        [Display(Name = "Password")]
         public string Password { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Подтверждение пароля")]
+        [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "Пароль и его подтверждение не совпадают.")]
         public string ConfirmPassword { get; set; }
 
@@ -114,7 +114,7 @@ namespace ServiceDeskApplication.Models
     {
         [Required]
         [EmailAddress]
-        [Display(Name = "Почта")]
+        [Display(Name = "E-mail")]
         public string Email { get; set; }
     }
 }

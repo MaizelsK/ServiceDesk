@@ -11,14 +11,18 @@ using ServiceDeskApplication.Models;
 using Microsoft.AspNet.Identity.Owin;
 using Microsoft.AspNet.Identity;
 using ServiceDeskApplication.Enums;
+using Microsoft.AspNet.Identity.EntityFramework;
+using ServiceDeskApplication.Services;
 
 namespace ServiceDeskApplication.Controllers
 {
+    [Authorize]
     public class TroubleTasksController : Controller
     {
         private ApplicationDbContext db = new ApplicationDbContext();
         private ApplicationUserManager _userManager;
         private ApplicationSignInManager _signInManager;
+        private TroubleTaskService troubleTaskService = new TroubleTaskService();
 
         public ApplicationUserManager UserManager
         {
@@ -44,18 +48,21 @@ namespace ServiceDeskApplication.Controllers
             }
         }
 
-        // GET: TroubleTasks
+        // ------ INDEX ------
+
         public async Task<ActionResult> Index()
         {
             if (SignInManager.AuthenticationManager.User.IsInRole("employee"))
             {
                 string currentUserId = SignInManager.AuthenticationManager.User.Identity.GetUserId<string>();
-                return View(await db.TroubleTasks.Where(task => task.User.Id == currentUserId).ToListAsync());
+                return View(await troubleTaskService.GetIndexViewModelListAsync(db, currentUserId));
             }
-            return View(await db.TroubleTasks.ToListAsync());
+
+            return View(await troubleTaskService.GetIndexViewModelListAsync(db));
         }
 
-        // GET: TroubleTasks/Details/5
+        // ------ DETAILS ------
+
         public async Task<ActionResult> Details(Guid? id)
         {
             if (id == null)
@@ -67,38 +74,46 @@ namespace ServiceDeskApplication.Controllers
             {
                 return HttpNotFound();
             }
-            return View(troubleTask);
+
+            TroubleTaskIndexViewModel viewModel = troubleTaskService.GetIndexViewModel(troubleTask);
+            return View(viewModel);
         }
 
-        // GET: TroubleTasks/Create
+        // ------ CREATE ------
+
         public ActionResult Create()
         {
-            return View();
+            return View(new TroubleTaskCreateViewModel());
         }
 
-        // POST: TroubleTasks/Create
-        // Чтобы защититься от атак чрезмерной передачи данных, включите определенные свойства, для которых следует установить привязку. Дополнительные 
-        // сведения см. в статье https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "Text")] TroubleTask troubleTask)
+        public async Task<ActionResult> Create([Bind(Include = "Text")] TroubleTaskCreateViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                troubleTask.Id = Guid.NewGuid();
-                troubleTask.GeneratedDate = DateTime.Now;
-                troubleTask.Status = Enum.GetName(typeof(TroubleTaskStatus), 0);
-                troubleTask.User = await UserManager.FindByIdAsync(SignInManager.AuthenticationManager.User.Identity.GetUserId<string>());
+                TroubleTask newTask = new TroubleTask
+                {
+                    Id = Guid.NewGuid(),
+                    GeneratedDate = DateTime.Now,
+                    Status = Enum.GetName(typeof(TroubleTaskStatus), 0),
+                    Text = viewModel.Text
+                };
 
-                db.TroubleTasks.Add(troubleTask);
+                string signedInUserId = SignInManager.AuthenticationManager.User.Identity.GetUserId<string>();
+                newTask.User = await db.Users
+                    .FirstOrDefaultAsync(user => user.Id == signedInUserId);
+
+                db.TroubleTasks.Add(newTask);
                 await db.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
 
-            return View(troubleTask);
+            return View(viewModel);
         }
 
-        // GET: TroubleTasks/Edit/5
+        // ------ EDIT ------
+
         [Authorize(Roles = "tech")]
         public async Task<ActionResult> Edit(Guid? id)
         {
@@ -111,53 +126,75 @@ namespace ServiceDeskApplication.Controllers
             {
                 return HttpNotFound();
             }
-            return View(troubleTask);
+
+            TroubleTaskEditViewModel editModel = troubleTaskService.GetEditViewModel(troubleTask);
+            return View(editModel);
         }
 
-        // POST: TroubleTasks/Edit/5
-        // Чтобы защититься от атак чрезмерной передачи данных, включите определенные свойства, для которых следует установить привязку. Дополнительные 
-        // сведения см. в статье https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "tech")]
-        public async Task<ActionResult> Edit([Bind(Include = "Id,GeneratedDate,Text,Comment,Status")] TroubleTask troubleTask)
+        public async Task<ActionResult> Edit([Bind(Include = "Id,CreatorFullName,GeneratedDate," +
+                                    "Text,Comment,Status,AssignedFullName")] TroubleTaskEditViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(troubleTask).State = EntityState.Modified;
-                await db.SaveChangesAsync();
-                return RedirectToAction("Index");
+                TroubleTask taskToModify = db.TroubleTasks.FirstOrDefault(task => task.Id == viewModel.Id);
+                if (taskToModify != null)
+                {
+                    // Меняем значения задаче
+                    troubleTaskService.ModifyTroubleTask(viewModel, ref taskToModify);
+
+                    db.Entry(taskToModify).State = EntityState.Modified;
+                    await db.SaveChangesAsync();
+                    return RedirectToAction("Index");
+                }
+                else
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            return View(troubleTask);
+            return View(viewModel);
         }
+
+        // ------ ASSIGN ------
 
         [Authorize(Roles = "tech")]
         [HttpGet]
         public async Task<ActionResult> Assign(Guid? id)
         {
-            if(id == null)
+            if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
             TroubleTask troubleTask = await db.TroubleTasks.FindAsync(id);
-            if(troubleTask == null)
+            if (troubleTask == null)
             {
                 return HttpNotFound();
             }
 
-            ViewBag.TechUsers = await _userManager.Users.Where(user => _userManager.IsInRole(user.Id, "tech")).ToListAsync();
-            return View(troubleTask);
+            // Поиск пользователей из технического отдела
+            RoleManager<IdentityRole> roleManager = new RoleManager<IdentityRole>(new RoleStore<IdentityRole>(db));
+            string techRoleId = roleManager.FindByName("tech").Id;
+            IEnumerable<ApplicationUser> techUsers = await UserManager.Users
+                                                     .Where(user => user.Roles
+                                                     .Any(role => role.RoleId == techRoleId))
+                                                     .ToListAsync();
+
+            // Передача ViewBag Id Задачи и список пользователей тех. отдела
+            ViewBag.TechUsers = techUsers;
+            ViewBag.TaskId = troubleTask.Id;
+
+            TroubleTaskAssignViewModel viewModel = troubleTaskService.GetAssignViewModel(troubleTask);
+            return View(viewModel);
         }
 
         [Authorize(Roles = "tech")]
-        [HttpPost, ActionName("Assign")]
-        [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Assign(Guid? id, string assignedUserId)
+        public async Task<ActionResult> AssignConfirm(Guid? id, string assignedUserId)
         {
             TroubleTask troubleTask = await db.TroubleTasks.FindAsync(id);
-            ApplicationUser assignedUser = await _userManager.FindByIdAsync(assignedUserId);
+            ApplicationUser assignedUser = await db.Users.FirstOrDefaultAsync(user => user.Id == assignedUserId);
             troubleTask.Assigned = assignedUser;
 
+            db.Entry(troubleTask).State = EntityState.Modified;
             await db.SaveChangesAsync();
             return RedirectToAction("Index");
         }
