@@ -13,6 +13,8 @@ namespace ServiceDeskApplication.Services
             return new TroubleTaskIndexViewModel
             {
                 Id = task.Id,
+                IsFileAttached = task.IsFileAttached,
+                AttachedFileName = task.IsFileAttached ? task.AttachedFileName : null,
                 CreatorFullName = task.User.FullName,
                 GeneratedDate = task.GeneratedDate,
                 Comment = task.Comment,
@@ -25,19 +27,21 @@ namespace ServiceDeskApplication.Services
         public Task<List<TroubleTaskIndexViewModel>> GetIndexViewModelListAsync(ApplicationDbContext db,
                                                                         string currentUserId = null)
         {
-            return Task.Run(async () =>
+            return Task.Run(() =>
             {
                 IEnumerable<TroubleTask> tasks;
 
                 if (currentUserId != null)
-                    tasks = await db.TroubleTasks.Where(task => task.User.Id == currentUserId)
-                                           .ToListAsync();
+                    tasks = db.TroubleTasks.Where(task => task.User.Id == currentUserId)
+                                           .ToList();
                 else
-                    tasks = await db.TroubleTasks.ToListAsync();
+                    tasks = db.TroubleTasks.ToList();
 
                 return tasks.AsParallel().Select(obj => new TroubleTaskIndexViewModel
                 {
                     Id = obj.Id,
+                    IsFileAttached = obj.IsFileAttached,
+                    AttachedFileName = obj.IsFileAttached ? obj.AttachedFileName : null,
                     CreatorFullName = obj.User?.FullName,
                     GeneratedDate = obj.GeneratedDate,
                     Comment = obj.Comment,
@@ -52,6 +56,8 @@ namespace ServiceDeskApplication.Services
         {
             return new TroubleTaskAssignViewModel
             {
+                IsFileAttached = task.IsFileAttached,
+                AttachedFileName = task.IsFileAttached ? task.AttachedFileName : null,
                 CreatorFullName = task.User.FullName,
                 GeneratedDate = task.GeneratedDate,
                 Text = task.Text

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Web;
 
 // ViewModel классы для работы с клиентом
 namespace ServiceDeskApplication.Models
@@ -9,6 +10,9 @@ namespace ServiceDeskApplication.Models
         [Required(ErrorMessage = "Describe your problem.")]
         [Display(Name = "Task text")]
         public string Text { get; set; }
+
+        [Display(Name = "Attach (optional)")]
+        public HttpPostedFileBase Attach { get; set; }
     }
 
     public class TroubleTaskEditViewModel
@@ -39,6 +43,11 @@ namespace ServiceDeskApplication.Models
     {
         public Guid Id { get; set; }
 
+        public bool IsFileAttached { get; set; }
+
+        [Display(Name = "Attached File")]
+        public string AttachedFileName { get; set; }
+
         [Display(Name = "Task creator")]
         public string CreatorFullName { get; set; }
 
@@ -60,6 +69,11 @@ namespace ServiceDeskApplication.Models
 
     public class TroubleTaskAssignViewModel
     {
+        public bool IsFileAttached { get; set; }
+
+        [Display(Name = "Attached File")]
+        public string AttachedFileName { get; set; }
+
         [Display(Name = "Task creator")]
         public string CreatorFullName { get; set; }
 

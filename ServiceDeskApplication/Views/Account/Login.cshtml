@@ -1,7 +1,7 @@
 ﻿@using ServiceDeskApplication.Models
 @model LoginViewModel
 @{
-    ViewBag.Title = "Выполнить вход";
+    ViewBag.Title = "Sign in";
 }
 
 <h2>@ViewBag.Title.</h2>
@@ -11,7 +11,6 @@
             @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
             {
                 @Html.AntiForgeryToken()
-                <h4>Используйте локальную учетную запись для входа.</h4>
                 <hr />
                 @Html.ValidationSummary(true, "", new { @class = "text-danger" })
                 <div class="form-group">

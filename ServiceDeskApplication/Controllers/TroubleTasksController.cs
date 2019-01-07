@@ -88,7 +88,7 @@ namespace ServiceDeskApplication.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Create([Bind(Include = "Text")] TroubleTaskCreateViewModel viewModel)
+        public async Task<ActionResult> Create([Bind(Include = "Text, Attach")] TroubleTaskCreateViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
@@ -97,8 +97,17 @@ namespace ServiceDeskApplication.Controllers
                     Id = Guid.NewGuid(),
                     GeneratedDate = DateTime.Now,
                     Status = Enum.GetName(typeof(TroubleTaskStatus), 0),
-                    Text = viewModel.Text
+                    Text = viewModel.Text,
                 };
+                if (viewModel.Attach != null)
+                {
+                    newTask.AttachedFile = FileHelper.GetAttachedFile(viewModel.Attach);
+                    newTask.IsFileAttached = true;
+                    newTask.AttachedFileName = viewModel.Attach.FileName;
+                    newTask.AttachedFile.TroubleTaskId = newTask.Id.ToString();
+                }
+                else
+                    newTask.IsFileAttached = false;
 
                 string signedInUserId = SignInManager.AuthenticationManager.User.Identity.GetUserId<string>();
                 newTask.User = await db.Users
@@ -197,6 +206,18 @@ namespace ServiceDeskApplication.Controllers
             db.Entry(troubleTask).State = EntityState.Modified;
             await db.SaveChangesAsync();
             return RedirectToAction("Index");
+        }
+
+        public async Task<ActionResult> DownloadFile(Guid? id)
+        {
+            TroubleTask troubleTask = await db.TroubleTasks.Include(x => x.AttachedFile)
+                                              .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (troubleTask != null)
+                return File(troubleTask.AttachedFile.Data, troubleTask.AttachedFile.ContentType,
+                            troubleTask.AttachedFileName);
+            else
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
         }
 
         protected override void Dispose(bool disposing)

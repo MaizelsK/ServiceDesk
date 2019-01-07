@@ -12,7 +12,7 @@
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model=>model.CreatorFullName)
+            @Html.DisplayNameFor(model => model.CreatorFullName)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.GeneratedDate)
@@ -28,6 +28,9 @@
         </th>
         <th>
             @Html.DisplayNameFor(model => model.AssignedFullName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.AttachedFileName)
         </th>
         <th></th>
     </tr>
@@ -58,6 +61,12 @@
                 else
                 {
                     @Html.DisplayFor(modelItem => item.AssignedFullName)
+                }
+            </td>
+            <td>
+                @if (item.IsFileAttached)
+                {
+                    @Html.ActionLink(item.AttachedFileName, "DownloadFile", new { id = item.Id })
                 }
             </td>
             <td>

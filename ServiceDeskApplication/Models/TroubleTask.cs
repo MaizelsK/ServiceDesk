@@ -9,12 +9,16 @@ namespace ServiceDeskApplication.Models
 {
     public class TroubleTask
     {
-        public virtual Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; } = Guid.NewGuid();
         public virtual ApplicationUser User { get; set; }
-        public virtual DateTime GeneratedDate { get; set; }
-        public virtual string Text { get; set; }
-        public virtual string Comment { get; set; }
-        public virtual string Status { get; set; } = Enum.GetName(typeof(TroubleTaskStatus), 0);
+        public DateTime GeneratedDate { get; set; }
+        public string Text { get; set; }
+        public string Comment { get; set; }
+        public string Status { get; set; } = Enum.GetName(typeof(TroubleTaskStatus), 0);
         public virtual ApplicationUser Assigned { get; set; }
+
+        public bool IsFileAttached { get; set; }
+        public string AttachedFileName { get; set; }
+        public AttachedFile AttachedFile { get; set; }
     }
 }

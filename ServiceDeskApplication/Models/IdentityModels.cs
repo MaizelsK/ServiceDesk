@@ -36,6 +36,7 @@ namespace ServiceDeskApplication.Models
         }
 
         public DbSet<TroubleTask> TroubleTasks { get; set; }
+        public DbSet<AttachedFile> AttachedFiles { get; set; }
 
         public static ApplicationDbContext Create()
         {

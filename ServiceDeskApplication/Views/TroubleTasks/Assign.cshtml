@@ -32,6 +32,17 @@
         <dd>
             @Html.DisplayFor(model => model.Text)
         </dd>
+
+        @if (Model.IsFileAttached)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.AttachedFileName)
+            </dt>
+
+            <dd>
+                @Html.ActionLink(Model.AttachedFileName, "DownloadFile", new { id = ViewBag.TaskId })
+            </dd>
+        }
     </dl>
 </div>
 

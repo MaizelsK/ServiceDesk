@@ -8,6 +8,17 @@ namespace ServiceDeskApplication.Migrations
         public override void Up()
         {
             CreateTable(
+                "dbo.AttachedFiles",
+                c => new
+                    {
+                        Id = c.Guid(nullable: false),
+                        TroubleTaskId = c.String(),
+                        ContentType = c.String(),
+                        Data = c.Binary(),
+                    })
+                .PrimaryKey(t => t.Id);
+            
+            CreateTable(
                 "dbo.AspNetRoles",
                 c => new
                     {
@@ -39,13 +50,18 @@ namespace ServiceDeskApplication.Migrations
                         Text = c.String(),
                         Comment = c.String(),
                         Status = c.String(),
+                        IsFileAttached = c.Boolean(nullable: false),
+                        AttachedFileName = c.String(),
                         Assigned_Id = c.String(maxLength: 128),
+                        AttachedFile_Id = c.Guid(),
                         User_Id = c.String(maxLength: 128),
                     })
                 .PrimaryKey(t => t.Id)
                 .ForeignKey("dbo.AspNetUsers", t => t.Assigned_Id)
+                .ForeignKey("dbo.AttachedFiles", t => t.AttachedFile_Id)
                 .ForeignKey("dbo.AspNetUsers", t => t.User_Id)
                 .Index(t => t.Assigned_Id)
+                .Index(t => t.AttachedFile_Id)
                 .Index(t => t.User_Id);
             
             CreateTable(
@@ -99,6 +115,7 @@ namespace ServiceDeskApplication.Migrations
         public override void Down()
         {
             DropForeignKey("dbo.TroubleTasks", "User_Id", "dbo.AspNetUsers");
+            DropForeignKey("dbo.TroubleTasks", "AttachedFile_Id", "dbo.AttachedFiles");
             DropForeignKey("dbo.TroubleTasks", "Assigned_Id", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserRoles", "UserId", "dbo.AspNetUsers");
             DropForeignKey("dbo.AspNetUserLogins", "UserId", "dbo.AspNetUsers");
@@ -108,6 +125,7 @@ namespace ServiceDeskApplication.Migrations
             DropIndex("dbo.AspNetUserClaims", new[] { "UserId" });
             DropIndex("dbo.AspNetUsers", "UserNameIndex");
             DropIndex("dbo.TroubleTasks", new[] { "User_Id" });
+            DropIndex("dbo.TroubleTasks", new[] { "AttachedFile_Id" });
             DropIndex("dbo.TroubleTasks", new[] { "Assigned_Id" });
             DropIndex("dbo.AspNetUserRoles", new[] { "RoleId" });
             DropIndex("dbo.AspNetUserRoles", new[] { "UserId" });
@@ -118,6 +136,7 @@ namespace ServiceDeskApplication.Migrations
             DropTable("dbo.TroubleTasks");
             DropTable("dbo.AspNetUserRoles");
             DropTable("dbo.AspNetRoles");
+            DropTable("dbo.AttachedFiles");
         }
     }
 }

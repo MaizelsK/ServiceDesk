@@ -13,7 +13,7 @@ namespace ServiceDeskApplication.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201901051308369_Initial"; }
+            get { return "201901071531571_Initial"; }
         }
         
         string IMigrationMetadata.Source
