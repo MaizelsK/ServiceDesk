@@ -15,41 +15,40 @@ namespace ServiceDeskApplication.Services
                 Id = task.Id,
                 IsFileAttached = task.IsFileAttached,
                 AttachedFileName = task.IsFileAttached ? task.AttachedFileName : null,
-                CreatorFullName = task.User.FullName,
+                CreatorFullName = task.User?.FullName,
                 GeneratedDate = task.GeneratedDate,
                 Comment = task.Comment,
                 Status = task.Status,
                 Text = task.Text,
-                AssignedFullName = task.Assigned.FullName
+                AssignedFullName = task.Assigned?.FullName
             };
         }
 
         public Task<List<TroubleTaskIndexViewModel>> GetIndexViewModelListAsync(ApplicationDbContext db,
                                                                         string currentUserId = null)
         {
-            return Task.Run(() =>
+            IEnumerable<TroubleTask> tasks;
+
+            if (currentUserId != null)
+                tasks = db.TroubleTasks.Where(task => task.User.Id == currentUserId)
+                                       .ToList();
+            else
+                tasks = db.TroubleTasks.ToList();
+
+            var taskModels = tasks.Select(obj => new TroubleTaskIndexViewModel
             {
-                IEnumerable<TroubleTask> tasks;
+                Id = obj.Id,
+                IsFileAttached = obj.IsFileAttached,
+                AttachedFileName = obj.IsFileAttached ? obj.AttachedFileName : null,
+                CreatorFullName = obj.User?.FullName,
+                GeneratedDate = obj.GeneratedDate,
+                Comment = obj.Comment,
+                Status = obj.Status,
+                Text = obj.Text,
+                AssignedFullName = obj.Assigned?.FullName
+            }).ToList();
 
-                if (currentUserId != null)
-                    tasks = db.TroubleTasks.Where(task => task.User.Id == currentUserId)
-                                           .ToList();
-                else
-                    tasks = db.TroubleTasks.ToList();
-
-                return tasks.AsParallel().Select(obj => new TroubleTaskIndexViewModel
-                {
-                    Id = obj.Id,
-                    IsFileAttached = obj.IsFileAttached,
-                    AttachedFileName = obj.IsFileAttached ? obj.AttachedFileName : null,
-                    CreatorFullName = obj.User?.FullName,
-                    GeneratedDate = obj.GeneratedDate,
-                    Comment = obj.Comment,
-                    Status = obj.Status,
-                    Text = obj.Text,
-                    AssignedFullName = obj.Assigned?.FullName
-                }).ToList();
-            });
+            return Task.FromResult(taskModels);
         }
 
         public TroubleTaskAssignViewModel GetAssignViewModel(TroubleTask task)
@@ -58,7 +57,7 @@ namespace ServiceDeskApplication.Services
             {
                 IsFileAttached = task.IsFileAttached,
                 AttachedFileName = task.IsFileAttached ? task.AttachedFileName : null,
-                CreatorFullName = task.User.FullName,
+                CreatorFullName = task.User?.FullName,
                 GeneratedDate = task.GeneratedDate,
                 Text = task.Text
             };
@@ -68,12 +67,12 @@ namespace ServiceDeskApplication.Services
         {
             return new TroubleTaskEditViewModel
             {
-                CreatorFullName = task.User.FullName,
+                CreatorFullName = task.User?.FullName,
                 GeneratedDate = task.GeneratedDate,
                 Comment = task.Comment,
                 Status = task.Status,
                 Text = task.Text,
-                AssignedFullName = task.Assigned.FullName
+                AssignedFullName = task.Assigned?.FullName
             };
         }
 
